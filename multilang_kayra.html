@@ -1,0 +1,718 @@
+<!DOCTYPE html>
+<html lang="tr"> <!-- Başlangıç dili Türkçe, sonra değiştirilebilir -->
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Elarien'in Macerası / Приключение Элариэн</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Lato:wght@300;400;700&display=swap');
+
+        body {
+            font-family: 'Lato', sans-serif;
+            line-height: 1.7;
+            margin: 0;
+            background-color: #1a1a2e;
+            background-image: radial-gradient(circle, #16223f 0%, #1a1a2e 70%);
+            color: #e0e0e0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        .container {
+            max-width: 850px;
+            width: 100%;
+            background: rgba(22, 34, 63, 0.85);
+            padding: 30px 40px;
+            border-radius: 12px;
+            box-shadow: 0 0 30px rgba(128, 0, 128, 0.5), 0 0 15px rgba(75, 0, 130, 0.3);
+            border: 1px solid rgba(128, 0, 128, 0.3);
+            text-align: center; /* Dil seçimi ve Kayra'nın mesajı için */
+        }
+
+        h1 {
+            font-family: 'Cinzel', serif;
+            color: #c592ff;
+            text-align: center;
+            text-shadow: 0 0 10px rgba(197, 146, 255, 0.8), 0 0 5px rgba(197, 146, 255, 0.5);
+            margin-bottom: 20px; /* Azaltıldı */
+            font-size: 2.2em; /* Biraz küçültüldü */
+        }
+        h2 {
+            font-family: 'Cinzel', serif;
+            color: #f0f8ff;
+            text-align: center;
+            text-shadow: 0 0 8px rgba(220, 230, 255, 0.7), 0 0 4px rgba(200, 210, 240, 0.5);
+            margin-bottom: 25px;
+            font-size: 1.8em;
+            margin-top: 30px;
+        }
+
+        .scene, .language-selection, .kayra-message {
+            margin-bottom: 35px;
+            padding-bottom: 25px;
+            border-bottom: 1px dashed rgba(128, 0, 128, 0.4);
+            text-align: left; /* Sahneler için sola yasla */
+        }
+        .scene:last-child, .language-selection:last-of-type, .kayra-message:last-of-type {
+            border-bottom: none;
+        }
+        .language-selection h2, .kayra-message p {
+             text-align: center;
+        }
+
+
+        p {
+            margin-bottom: 15px;
+            font-size: 1.05em;
+        }
+
+        .prompt {
+            font-style: italic;
+            color: #b0aac0;
+            margin-bottom: 15px;
+            padding-left: 15px;
+            border-left: 3px solid #8a5a9a;
+        }
+
+        .choice-button, .language-button {
+            display: block;
+            background-color: #5e3d7c;
+            color: #f0e6ff;
+            padding: 12px 18px;
+            margin: 12px auto; /* Ortalamak için auto */
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            text-align: center; /* Buton içindeki metni ortala */
+            width: 80%; /* Genişlik ayarı */
+            max-width: 300px; /* Maksimum genişlik */
+            box-sizing: border-box;
+            font-size: 1em;
+            font-family: 'Lato', sans-serif;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+        }
+        .choice-button:hover, .language-button:hover {
+            background-color: #8a5a9a;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(138, 90, 154, 0.4);
+        }
+        .choice-button { /* Hikaye içi seçenek butonları için sola yaslama */
+            text-align: left;
+            width: 100%;
+            max-width: none;
+            margin: 12px 0;
+        }
+
+        .small-continue-button {
+            background-color: #3e2a50;
+            color: #d9c8ff;
+            padding: 8px 12px;
+            margin-top: 10px;
+            border: 1px solid #5e3d7c;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.9em;
+            float: right;
+            clear: both;
+        }
+        .small-continue-button:hover {
+            background-color: #5e3d7c;
+        }
+
+
+        .ipucu {
+            background-color: rgba(75, 0, 130, 0.2);
+            padding: 15px;
+            margin-top:15px;
+            border-left: 4px solid #c592ff;
+            font-size: 0.95em;
+            border-radius: 6px;
+            color: #d9c8ff;
+        }
+        .ipucu strong { color: #f0e6ff; }
+
+        .result {
+            background-color: rgba(22, 160, 133, 0.15);
+            color: #a7f5e8;
+            padding: 15px;
+            margin-top: 15px;
+            border-left: 4px solid #1abc9c;
+            border-radius: 6px;
+            font-weight: bold;
+            overflow: auto;
+        }
+        .result.no-click {
+             cursor: default;
+        }
+
+
+        .hidden {
+            display: none;
+        }
+
+        #ending-text {
+            font-size: 1.1em;
+            font-style: italic;
+            color: #f0e6ff;
+            text-align: center;
+        }
+
+        .scene-image {
+            width: 100%;
+            max-height: 450px;
+            object-fit: cover;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.4);
+            border: 1px solid rgba(197, 146, 255, 0.2);
+        }
+
+        .kayra-message p {
+            font-size: 1.1em;
+            color: #d1b3ff;
+            line-height: 1.8;
+            margin-top: 20px;
+            margin-bottom: 30px;
+            padding: 10px;
+            border-top: 1px dashed rgba(128,0,128,0.4);
+            border-bottom: 1px dashed rgba(128,0,128,0.4);
+        }
+
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div id="language-selection" class="language-selection">
+            <h1>Elarien'in Macerası / Приключение Элариэн</h1>
+            <h2>Dil Seçin / Выберите язык</h2>
+            <button class="language-button" onclick="selectLanguage('tr')">Türkçe</button>
+            <button class="language-button" onclick="selectLanguage('ru')">Русский</button>
+        </div>
+
+        <div id="kayra-message-container" class="hidden">
+             <div class="kayra-message">
+                <p id="kayra-message-text"></p>
+                <button class="language-button" id="start-story-button" onclick="startStory()">Hikayeye Başla / Начать историю</button>
+            </div>
+        </div>
+
+
+        <!-- TÜRKÇE HİKAYE SAHNELERİ (Başlangıçta Gizli) -->
+        <div id="story-tr" class="hidden">
+            <div id="scene1-tr" class="scene">
+                <h2>Kaybolan Güneş ve Gizemli Fısıltı</h2>
+                <img src="https://i.imgur.com/9fHfLsN.jpeg" alt="Kaybolan Güneş ve Yaşlı Teyze Elarien'e fısıldıyor" class="scene-image">
+                <p class="prompt">Gök kubbe simsiyah bir örtüyle kaplandığında, Dünya'nın neşesi de onunla birlikte sönmüştü. Kötü bir sihirbazın karanlık büyüsü, güneşi hapsetmiş, insanları ve diğer Dünya canlılarını umutsuzluğa boğmuştu. Şehirde bir panik havası hakimdi. İşte tam o karmaşanın ortasında, yüzü zamanın çizgileriyle dolu bilge bir Yaşlı Teyze belirdi. Kalabalığın arasından sıyrılıp doğruca maceraperest ruhu ve içten gülümsemesiyle tanınan Elarien'in yanına yaklaştı.</p>
+                <p>"Elarien," diye fısıldadı Yaşlı Teyze, sesi sadece genç kızın duyabileceği kadar kısıktı. "Güneşi geri getirebilecek tek bir şey var: Güneş Çiçeği. Onu bulmalısın. O, sıradan bir çiçek değil. Derinlerde, su altı dünyası Delmaris'te saklı."</p>
+                <p class="prompt">Elarien, Yaşlı Teyze'nin sözlerinin ardından bir anlık sessizlikte, içgüdüsel olarak şehrin sembolik yerlerine dikkat kesilir. Şehrin en eski çeşmesinin yanında, yıllardır kimsenin fark etmediği, yosun tutmuş bir taş kabartmaya gözü takılır. Çeşmeye yaklaşır ve eliyle yosunları temizlediğinde, soluk bir kabartma ortaya çıkar.</p>
+                <div class="ipucu"><strong>İPUCU (Kabartmadaki Yazı/Şekil):</strong> "Derinlerin ışığı, eski sözlerde uyur. Bilgelik kapısı, sessiz satırlarda açılır."</div>
+                <p>Ne yapmalısın?</p>
+                <button class="choice-button" onclick="makeChoice('scene1-tr', '1A')">Yaşlı Teyze'ye Daha Fazla Detay Sormak</button>
+                <button class="choice-button" onclick="makeChoice('scene1-tr', '1B')">Hemen Şehirde Bilgi Toplamaya Başlamak</button>
+                <div id="result-scene1-tr" class="result hidden"></div>
+            </div>
+
+            <div id="scene2-tr" class="scene hidden">
+                <h2>Kadim Bilginin Peşinde</h2>
+                <p class="prompt">Elarien vakit kaybetmedi...</p> <!-- Kısaltıldı, tam metin JavaScript'te -->
+                <div class="ipucu"><strong>İPUCU (Kitap Ayracındaki Sembol ve Minik Not):</strong> "...En değerli hazineler, en kuytu köşelerde saklıdır."</div>
+                <p id="scene2-intro-tr"></p>
+                <p>Kitapta neye odaklanmalısın?</p>
+                <div id="choices-scene2-tr"></div>
+                <div id="result-scene2-tr" class="result hidden"></div>
+            </div>
+
+            <div id="scene3-tr" class="scene hidden">
+                <h2>Sualtı Dünyasına İlk Adım ve Akıntının Seçimi</h2>
+                <p class="prompt">Kitaptaki ipuçlarını takip eden Elarien...</p>
+                <div class="ipucu"><strong>İPUCU (Parşömen Parçasındaki Yazı):</strong> "...Delmaris her iki erdemi de ödüllendirir..."</div>
+                <p>Hangi akıntıyı seçersin?</p>
+                <button class="choice-button" onclick="makeChoice('scene3-tr', '3A')">Sakin ve Işıltılı Akıntıyı Seçmek</button>
+                <button class="choice-button" onclick="makeChoice('scene3-tr', '3B')">Hızlı ve Derin Akıntıyı Seçmek</button>
+                <div id="result-scene3-tr" class="result hidden"></div>
+            </div>
+
+            <div id="scene4-tr" class="scene hidden">
+                <h2>Bilge Yılanın Kapısını Açmak</h2>
+                <p class="prompt" id="scene4-intro-tr">Gözlerini açtığında, Delmaris'teydi...</p>
+                <div class="ipucu"><strong>İPUCU (Duvardaki Çizim):</strong> Güneş, çiçek, su altı canlıları, yılan figürü.</div>
+                <p>Yılan, bilge bir sesle konuştu: "...Ben neyim? Üç hakkın var."</p>
+                <p>Ne yaparsın?</p>
+                <button class="choice-button" onclick="makeChoice('scene4-tr', '4A')">Doğrudan Mantık ve Bilgiye Güvenerek "Güneş!" Diye Cevap Vermek</button>
+                <button class="choice-button" onclick="makeChoice('scene4-tr', '4B')">Deniz Yılanı ile Etkileşim Kurmaya Çalışmak</button>
+                <div id="result-scene4-tr" class="result hidden"></div>
+            </div>
+
+            <div id="scene5-tr" class="scene hidden">
+                <h2>Kutsal Mağarada Işığı Aramak</h2>
+                <p class="prompt" id="scene5-intro-tr">Deniz Yılanı memnuniyetle gülümsedi...</p>
+                <div class="ipucu"><strong>İPUCU (Yosunların Oluşturduğu İz):</strong> "...Doğru yol, doğanın kendi ışığıyla aydınlanır."</div>
+                <p>Nasıl ilerlersin?</p>
+                <button class="choice-button" onclick="makeChoice('scene5-tr', '5A')">Gördüğün İlk İlginç Yolu/Sezgisel Işığı (Yosun İzini) Takip Etmek</button>
+                <button class="choice-button" onclick="makeChoice('scene5-tr', '5B')">Karşılaştığın Deniz Canlılarından (Bilge bir kaplumbağadan) Yardım İstemek</button>
+                <div id="result-scene5-tr" class="result hidden"></div>
+            </div>
+
+            <div id="scene6-tr" class="scene hidden">
+                <h2>(DORUK NOKTASI) Hayati Karar Anı: İki Yol</h2>
+                <p class="prompt" id="scene6-intro-tr">Sonunda, Güneş Çiçeği'ni gördün...</p>
+                <div class="ipucu"><strong>İPUCU (Çiçekten Gelen Fısıltı/Işık Titreşimi):</strong> "...İki dünya da yaşamı hak eder."</div>
+                <p>Taş Tabletteki Yazılar...</p>
+                <p>Kararın ne olacak?</p>
+                <button class="choice-button" onclick="makeChoice('scene6-tr', '6A')">Çiçeği Alıp Dünya'ya Götürmek (Dünya Öncelikli)</button>
+                <button class="choice-button" onclick="makeChoice('scene6-tr', '6B')">Çiçeği Bırakıp Özünü Yönlendirmek (Dengeli Çözüm)</button>
+                <div id="result-scene6-tr" class="result hidden"></div>
+            </div>
+
+            <div id="scene7-tr" class="scene hidden">
+                <h2 id="scene7-title-tr">Kararın Yankıları</h2>
+                <div id="scene7-text-tr" class="result no-click" style="padding: 10px;"></div>
+            </div>
+
+            <div id="scene8-tr" class="scene hidden">
+                <h2>Aydınlığın Dönüşü ve Kahramanın Geleceği</h2>
+                <p class="prompt">Güneş Dünya'ya geri dönmüştür...</p>
+                <div class="ipucu"><strong>İPUCU (Kutudaki Not):</strong> "...bilgelik ışığın olsun."</div>
+                <p id="scene8-intro-tr"></p>
+                <p>Ne yapacaksın?</p>
+                <div id="choices-scene8-tr"></div>
+                <div id="result-scene8-tr" class="result hidden"></div>
+            </div>
+
+            <div id="ending-tr" class="scene hidden">
+                <h2 id="ending-title-tr">SON</h2>
+                <p id="ending-text-tr"></p>
+                <button class="choice-button" onclick="restartGame()">Yeniden Başla</button>
+            </div>
+        </div>
+
+        <!-- RUSÇA HİKAYE SAHNELERİ (Başlangıçta Gizli) -->
+        <div id="story-ru" class="hidden">
+            <div id="scene1-ru" class="scene">
+                <h2>Исчезнувшее Солнце и Таинственный Шепот</h2>
+                <img src="https://i.imgur.com/9fHfLsN.jpeg" alt="Исчезнувшее Солнце и Старушка шепчет Элариэн" class="scene-image">
+                <p class="prompt">Когда небесный свод покрылся черной пеленой, радость Земли угасла вместе с ним. Темная магия злого волшебника заточила солнце, повергнув людей и других обитателей Земли в отчаяние. В городе царила паника. И вот, посреди этого хаоса, появилась мудрая Старушка, чье лицо было изрезано морщинами времени. Пробравшись сквозь толпу, она подошла прямо к Элариэн, известной своим авантюрным духом и искренней улыбкой.</p>
+                <p>"Элариэн," - прошептала Старушка голосом, достаточно тихим, чтобы его услышала только девушка. "Есть лишь одно, что может вернуть солнце: Цветок Солнца. Ты должна найти его. Это не обычный цветок. Он спрятан в глубинах, в подводном мире Дельмарис."</p>
+                <p class="prompt">После слов Старушки, в минутном молчании, Элариэн инстинктивно обратила внимание на символические места города. У самого старого фонтана города, на замшелом каменном барельефе, которого никто не замечал годами, ее взгляд остановился. Подойдя к фонтану и смахнув мох рукой, она обнаружила тусклый барельеф.</p>
+                <div class="ipucu"><strong>ПОДСКАЗКА (Надпись/Изображение на барельефе):</strong> "Свет глубин спит в древних словах. Врата мудрости открываются в безмолвных строках."</div>
+                <p>Что ты предпримешь?</p>
+                <button class="choice-button" onclick="makeChoice('scene1-ru', '1A')">Расспросить Старушку подробнее</button>
+                <button class="choice-button" onclick="makeChoice('scene1-ru', '1B')">Немедленно начать собирать информацию в городе</button>
+                <div id="result-scene1-ru" class="result hidden"></div>
+            </div>
+
+            <div id="scene2-ru" class="scene hidden">
+                <h2>В Поисках Древних Знаний</h2>
+                <p class="prompt">Элариэн не теряла времени...</p>
+                <div class="ipucu"><strong>ПОДСКАЗКА (Символ и маленькая записка на закладке):</strong> "...Самые ценные сокровища спрятаны в самых укромных уголках."</div>
+                <p id="scene2-intro-ru"></p>
+                <p>На чем сосредоточиться в книге?</p>
+                <div id="choices-scene2-ru"></div>
+                <div id="result-scene2-ru" class="result hidden"></div>
+            </div>
+             <div id="scene3-ru" class="scene hidden">
+                <h2>Первый Шаг в Подводный Мир и Выбор Течения</h2>
+                <p class="prompt">Следуя подсказкам из книги, Элариэн достигла...</p>
+                <div class="ipucu"><strong>ПОДСКАЗКА (Надпись на куске пергамента):</strong> "...Дельмарис награждает обе добродетели..."</div>
+                <p>Какое течение ты выберешь?</p>
+                <button class="choice-button" onclick="makeChoice('scene3-ru', '3A')">Выбрать Спокойное и Светящееся Течение</button>
+                <button class="choice-button" onclick="makeChoice('scene3-ru', '3B')">Выбрать Быстрое и Глубокое Течение</button>
+                <div id="result-scene3-ru" class="result hidden"></div>
+            </div>
+
+            <div id="scene4-ru" class="scene hidden">
+                <h2>Открыть Врата Мудрого Змея</h2>
+                <p class="prompt" id="scene4-intro-ru">Открыв глаза, она оказалась в Дельмарисе...</p>
+                <div class="ipucu"><strong>ПОДСКАЗКА (Рисунок на стене):</strong> Солнце, цветок, подводные существа, змей.</div>
+                <p>Змей заговорил мудрым голосом: "...Кто я? У тебя три попытки."</p>
+                <p>Что ты предпримешь?</p>
+                <button class="choice-button" onclick="makeChoice('scene4-ru', '4A')">Положиться на логику и знания, ответив: "Солнце!"</button>
+                <button class="choice-button" onclick="makeChoice('scene4-ru', '4B')">Попытаться взаимодействовать с Морским Змеем</button>
+                <div id="result-scene4-ru" class="result hidden"></div>
+            </div>
+
+            <div id="scene5-ru" class="scene hidden">
+                <h2>Поиски Света в Священной Пещере</h2>
+                <p class="prompt" id="scene5-intro-ru">Морской Змей удовлетворенно улыбнулся...</p>
+                <div class="ipucu"><strong>ПОДСКАЗКА (След из водорослей):</strong> "...Верный путь освещен светом самой природы."</div>
+                <p>Как ты будешь продвигаться?</p>
+                <button class="choice-button" onclick="makeChoice('scene5-ru', '5A')">Следовать первому интересному пути/интуитивному свету (следу из водорослей)</button>
+                <button class="choice-button" onclick="makeChoice('scene5-ru', '5B')">Попросить помощи у встреченных морских существ (у мудрой черепахи)</button>
+                <div id="result-scene5-ru" class="result hidden"></div>
+            </div>
+
+            <div id="scene6-ru" class="scene hidden">
+                <h2>(КУЛЬМИНАЦИЯ) Судьбоносное Решение: Два Пути</h2>
+                <p class="prompt" id="scene6-intro-ru">Наконец, ты увидела Цветок Солнца...</p>
+                <div class="ipucu"><strong>ПОДСКАЗКА (Шепот/Световая вибрация от цветка):</strong> "...Оба мира заслуживают жизни."</div>
+                <p>Надписи на Каменной Плите...</p>
+                <p>Каково твое решение?</p>
+                <button class="choice-button" onclick="makeChoice('scene6-ru', '6A')">Взять Цветок и Отнести на Землю (Приоритет – Земля)</button>
+                <button class="choice-button" onclick="makeChoice('scene6-ru', '6B')">Оставить Цветок и Направить Его Сущность (Сбалансированное Решение)</button>
+                <div id="result-scene6-ru" class="result hidden"></div>
+            </div>
+
+            <div id="scene7-ru" class="scene hidden">
+                <h2 id="scene7-title-ru">Отголоски Решения</h2>
+                <div id="scene7-text-ru" class="result no-click" style="padding: 10px;"></div>
+            </div>
+
+            <div id="scene8-ru" class="scene hidden">
+                <h2>Возвращение Света и Будущее Героини</h2>
+                <p class="prompt">Солнце вернулось на Землю...</p>
+                <div class="ipucu"><strong>ПОДСКАЗКА (Записка в шкатулке):</strong> "...пусть мудрость будет твоим светом."</div>
+                <p id="scene8-intro-ru"></p>
+                <p>Что ты предпримешь?</p>
+                <div id="choices-scene8-ru"></div>
+                <div id="result-scene8-ru" class="result hidden"></div>
+            </div>
+
+            <div id="ending-ru" class="scene hidden">
+                <h2 id="ending-title-ru">КОНЕЦ</h2>
+                <p id="ending-text-ru"></p>
+                <button class="choice-button" onclick="restartGame()">Начать Сначала</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let playerChoices = {};
+        let sceneTransitionTimeout;
+        let currentLanguage = 'tr'; // Varsayılan dil
+
+        const storyContent = {
+            'tr': {
+                // Sahne 1 (HTML'de tam metin var)
+                scene1_1A_result: "Yaşlı Teyze gülümser: 'Delmaris'in yolu kalbinde ve eski yazılarda gizlidir. Çiçek, güneşin özünü taşır. Sihirbaz... onun adı bile karanlıktır, ama en büyük zayıflığı saf ışıktır.' Bu bilgiyle kütüphaneye yöneliyorsun.",
+                scene1_1B_result: "Şehirdeki yaşlılardan ve denizcilerden Delmaris hakkında çelişkili efsaneler duyuyorsun. Bu bilgilerle donanmış olarak kütüphaneye gitmeye karar veriyorsun.",
+                scene2_intro_1A: "Yaşlı Teyze'nin 'eski yazılar' ve 'ışık' vurgusunu hatırlıyorsun.",
+                scene2_intro_1B: "Duyduğun çeşitli Delmaris efsanelerini hatırlıyorsun.",
+                scene2_button_2A1: "Kitaptaki Geçit ve Işık Bilgisine Odaklanmak",
+                scene2_button_2A2: "Kitabı Detaylıca İnceleyip Sihirbazın Zayıflığını Araştırmak",
+                scene2_button_2B1: "Duyduğun Efsanelerle Kitaptaki Bilgileri Karşılaştırmak",
+                scene2_button_2B2: "Kitaptaki En Güvenilir Görünen Yolu Seçmek",
+                scene2_2A1_result: "Kitabın özellikle Delmaris'e geçiş yöntemlerini ve Güneş Çiçeği'nin 'ışık' özelliklerini hızla tarıyorsun. Hızlı ve doğrudan bir yöntem dikkatini çekiyor.",
+                scene2_2A2_result: "Kitabı sadece geçit ve çiçek için değil, Delmaris'teki 'saf ışık' kaynakları veya sihirbazın büyüsünü bozabilecek ritüeller hakkında da inceliyorsun. Delmaris'in ekosistemi ve çiçeğin koruyucu ışığı hakkında daha fazla bilgi ediniyorsun.",
+                scene2_2B1_result: "Kitaptaki bilgileri, duyduğun efsanelerle (özellikle Delmaris'in sakinleri, tehlikeleri ve gizemli koruyucuları hakkında) karşılaştırarak okuyorsun. Daha donanımlı hissediyorsun.",
+                scene2_2B2_result: "Duyduğun abartılı efsanelerden sonra kitaptaki en somut ve güvenilir görünen bilgilere odaklanıyorsun. Pratik ve hızlı çözümler dikkatini çekiyor.",
+                scene3_3A_result: "Sakin akıntıyı seçiyorsun. Geçişin yumuşak oluyor ve Delmaris'in huzurlu, iyi aydınlatılmış bir bölümüne varıyorsun.",
+                scene3_3B_result: "Hızlı ve derin akıntıyı seçiyorsun. Çalkantılı bir geçişle Delmaris'in daha derin, merkezi ama biraz tekinsiz bir noktasına hızla varıyorsun. Belki küçük bir eşyanı düşürdün.",
+                scene4_intro_3A: "Sakin bir başlangıçla Delmaris'e vardın. Rengarenk mercanlar ve ışıldayan bitkiler arasında ilerlerken, Güneş Çiçeği'nin saklı olduğu söylenen parıltılı mağaranın girişinde, pulları zümrüt gibi parlayan dev bir Deniz Yılanı ile karşılaşıyorsun...",
+                scene4_intro_3B: "Hızlı ama sersemletici bir başlangıçla Delmaris'in merkezine yakın bir yere vardın. Etraf biraz tekinsiz görünse de ilerliyorsun ve Güneş Çiçeği'nin saklı olduğu söylenen parıltılı mağaranın girişinde, pulları zümrüt gibi parlayan dev bir Deniz Yılanı ile karşılaşıyorsun...",
+                scene4_4A_result: "Doğrudan 'Güneş!' diye cevap veriyorsun. Yılan etkilenir ve yolu açar. Kendine güvenerek mağaraya giriyorsun.",
+                scene4_4B_result: "Deniz Yılanı'na saygını sunup dolaylı bir ipucu istiyorsun. Yılan, bilge gözleriyle seni süzer. 'Aradığın şey, hem burada hem de yukarıda özlenen, hayat veren sıcaklıktır' der. 'Güneş!' diye cevap veriyorsun. Yılan yolu açarken 'Işığı takip et, ama aldatıcı parıltılara kanma' diye fısıldar.",
+                scene5_intro_4A: "Deniz Yılanı mağrur bir edayla başını eğer. 'Doğru bildin, fani. Liyakatini kanıtladın.' Mağaraya adımını atıyorsun. İçerisi labirent gibi. Ancak yerdeki parlayan yosun izini fark ediyorsun.",
+                scene5_intro_4B: "Deniz Yılanı bilmecenin ardından sana bir de ipucu verdi. 'Işığı takip et, ama aldatıcı parıltılara kanma.' Bu sözlerle mağaraya giriyorsun. İçerisi labirent gibi. Yerdeki parlayan yosun izini fark ediyorsun.",
+                scene5_5A_result: "Yosunların oluşturduğu parlayan izi takip ediyorsun. Bu gizemli yol seni doğrudan Güneş Çiçeği'ne götürüyor.",
+                scene5_5B_result: "Mağarada bilge, ışıldayan pulları olan bir deniz kaplumbağasıyla karşılaşıyorsun. Ona Güneş Çiçeği'ni soruyorsun. Kaplumbağa, kadim bir sesle yolu tarif ediyor ve ekliyor: 'O çiçek hem Dünya'ya hem Delmaris'e aittir. Seçimini bilgece yap, genç ruh.'",
+                scene6_intro_5A: "Sezgilerine güvenerek yosun izini takip ettin ve Güneş Çiçeği'ni buldun! Göz kamaştırıcı bir ışıkla parlıyor. Tam çiçeğe uzanacakken, çiçeğin dibindeki kadim taş tablette parlayan yazılar beliriyor...",
+                scene6_intro_5B: "Bilge kaplumbağanın yardımı ve uyarısıyla Güneş Çiçeği'ni buldun! Göz kamaştırıcı bir ışıkla parlıyor. Tam çiçeğe uzanacakken, çiçeğin dibindeki kadim taş tablette parlayan yazılar beliriyor...",
+                scene6_6A_result: "Dünya'nın acil kurtuluşunu düşünerek Güneş Çiçeği'ni nazikçe yerinden alıyorsun. Elinde muazzam bir güç hissediyorsun.",
+                scene6_6B_result: "Hem Dünya'yı hem de sana kucak açan Delmaris'i düşünerek taş tabletteki ritüel adımlarını izlemeye karar veriyorsun. Güneş Çiçeği'ne dokunarak, kadim sözleri fısıldıyorsun. Çiçekten yayılan enerji nazikçe yükseliyor.",
+                scene7_text_6A: "<p>Hızla Delmaris'ten ayrılıp Dünya'ya döndün. Şehre vardığında, Güneş Çiçeği'ni gökyüzüne doğru tuttun. Çiçekten yayılan göz kamaştırıcı bir ışık hüzmesi göğe yükseldi, karanlık büyüyü anında parçaladı ve hapsedilmiş güneş tüm görkemiyle özgürlüğüne kavuştu. Dünya anında aydınlanırken, insanlar ve tüm canlılar büyük bir sevinç çığlığı attı. Ancak Delmaris'teki o kutsal mağara, şimdi eski ışıltısını kaybetmiş, sıradan bir su altı kovuğu haline gelmişti. Bir fedakarlık yapılmıştı.</p><button class='choice-button' onclick='clearTimeout(sceneTransitionTimeout); document.getElementById(\"scene7-text-tr\").classList.add(\"hidden\"); populateScene8Choices(\"6A\"); showScene(\"scene8-tr\");'>Kaderinle Yüzleş</button>",
+                scene7_text_6B: "<p>Bu süreç daha yavaştı, ama umut doluydu. Sonunda, Dünya'ya döndüğünde, güneşin yavaş yavaş geri geldiğini gördün. İlk başta soluk bir ışık vardı, ama zamanla güçlendi. Birkaç gün içinde güneş eski parlaklığına kavuştu. Delmaris'teki Güneş Çiçeği ise yerinde duruyor, mağarayı ve çevresini aydınlatmaya, Delmaris canlılarına umut ve enerji vermeye devam ediyordu. Bir denge kurulmuştu.</p><button class='choice-button' onclick='clearTimeout(sceneTransitionTimeout); document.getElementById(\"scene7-text-tr\").classList.add(\"hidden\"); populateScene8Choices(\"6B\"); showScene(\"scene8-tr\");'>Kaderinle Yüzleş</button>",
+                scene8_intro_6A: "Dünya kurtuldu ama Delmaris'teki mağara soldu. Bu ağır sırrı ne yapacaksın?",
+                scene8_button_8A1: "Delmaris'in ve Yaşadığı Maceranın Sırrını Tamamen Saklamak",
+                scene8_button_8A2: "Delmaris Hakkındaki Bilgiyi Sadece Yaşlı Teyze ile Paylaşmak (Mağaranın solduğunu da anlatarak)",
+                scene8_intro_6B: "Dünya yavaşça aydınlandı ve Delmaris'teki Güneş Çiçeği korundu. Bu umut dolu bilgiyi ne yapacaksın?",
+                scene8_button_8B1: "Delmaris'in Korunduğunu ve İki Dünya Arasında Bir Bağ Olabileceğini Anlatmak",
+                scene8_8A1_result_title: "SON 1: Gizemli Kurtarıcı ve Solan Bir Hatıra",
+                scene8_8A1_result_text: "Elarien, Dünya'yı kurtaran kahraman olarak anılır, ama Delmaris'in ve Güneş Çiçeği'nin (ve mağaranın solmasının) sırrını sonsuza dek kalbinde taşır. Dünya mutludur, ancak Delmaris'in fedakarlığı bilinmez. Elarien, zaman zaman denize bakar ve su altı dünyasının solan hatırasıyla, bir kahramanın sessiz yüküyle yaşar.",
+                scene8_8A2_result_title: "SON 2: Paylaşılan Sorumluluk ve Gelecek İçin Bir Ders",
+                scene8_8A2_result_text: "Elarien, Dünya'yı kurtarmıştır. Yaşadığı her şeyi ve Delmaris'in mağarasının Güneş Çiçeği'nin yok olmasıyla solduğunu Yaşlı Teyze'ye anlatır. Yaşlı Teyze, Elarien'in fedakarlığını ve Delmaris'in kaybını anlar. Birlikte, bu olayın gelecekte doğal dengelere saygı duyulması ve sihrin bedellerinin anlaşılması için bir ders olmasına karar verirler. Dünya mutludur, ama Elarien ve Yaşlı Teyze, büyük güçlerin büyük sorumluluklar getirdiğini ve bazen zor seçimler yapılması gerektiğini, bilgelikle hatırlar.",
+                scene8_8B1_result_title: "SON 3: İki Dünyanın Koruyucusu ve Yeşeren Umut",
+                scene8_8B1_result_text: "Elarien, Dünya'yı kurtarmıştır ve Delmaris'in Güneş Çiçeği hala yerindedir. Bu bilgiyi Yaşlı Teyze ve diğer bilge kişilerle paylaşır. Dünya'da, Delmaris'e karşı büyük bir saygı ve merak uyanır. Belki de gelecekte iki dünya arasında dikkatli ve saygılı bir iletişim kurulabilir. Elarien, sadece Dünya'nın değil, aynı zamanda Delmaris'in de bir dostu ve koruyucusu olarak görülür. İki dünya arasında bir denge ve karşılıklı anlayış umudu yeşerir.",
+                scene8_result_message: "Seçimin fısıltısı yankılanıyor... Kaderin yazıldı.",
+                continue_button: "Devam Et",
+                start_story_button: "Hikayeye Başla",
+                restart_button: "Yeniden Başla",
+                kayra_message: "Merhaba! Ben Kayra, 8 yaşındayım. Bu hikayeyi Algorithmics kursumuzun AI (Yapay Zeka) derslerinde öğrendiğim yapay zeka araçlarını kullanarak sizin için ben yazdım, tasarladım, programladım ve sunuyorum. Umarım beğenirsiniz!"
+            },
+            'ru': {
+                // Sahne 1 (HTML'de tam metin var)
+                scene1_1A_result: "Старушка улыбается: 'Путь в Дельмарис скрыт в твоем сердце и в древних письменах. Цветок несет в себе сущность солнца. Волшебник... даже его имя – тьма, но его величайшая слабость – чистый свет.' С этой информацией ты направляешься в библиотеку.",
+                scene1_1B_result: "Ты слышишь противоречивые легенды о Дельмарисе от стариков и моряков города. Вооружившись этой информацией, ты решаешь пойти в библиотеку.",
+                scene2_intro_1A: "Ты вспоминаешь акцент Старушки на 'древних письменах' и 'свете'.",
+                scene2_intro_1B: "Ты вспоминаешь различные легенды о Дельмарисе, которые услышала.",
+                scene2_button_2A1: "Сосредоточиться на информации о переходе и свете в книге",
+                scene2_button_2A2: "Подробно изучить книгу и поискать слабость волшебника",
+                scene2_button_2B1: "Сравнить услышанные легенды с информацией в книге",
+                scene2_button_2B2: "Выбрать самый надежный путь, описанный в книге",
+                scene2_2A1_result: "Ты быстро просматриваешь разделы книги, описывающие способы перехода в Дельмарис и 'световые' свойства Цветка Солнца. Твое внимание привлекает быстрый и прямой метод.",
+                scene2_2A2_result: "Ты изучаешь книгу не только ради перехода и цветка, но и в поисках информации об источниках 'чистого света' в Дельмарисе или ритуалах, способных разрушить магию волшебника. Ты узнаешь больше об экосистеме Дельмариса и защитном свете цветка.",
+                scene2_2B1_result: "Ты сравниваешь информацию из книги с услышанными легендами (особенно об обитателях, опасностях и таинственных стражах Дельмариса). Ты чувствуешь себя более подготовленной.",
+                scene2_2B2_result: "После услышанных преувеличенных легенд ты сосредотачиваешься на самой конкретной и надежной информации в книге. Твое внимание привлекают практичные и быстрые решения.",
+                scene3_3A_result: "Ты выбираешь спокойное течение. Переход проходит мягко, и ты оказываешься в мирной, хорошо освещенной части Дельмариса.",
+                scene3_3B_result: "Ты выбираешь быстрое и глубокое течение. После бурного перехода ты быстро оказываешься в более глубокой, центральной, но немного зловещей точке Дельмариса. Возможно, ты уронила какой-то мелкий предмет.",
+                scene4_intro_3A: "После спокойного начала ты прибыла в Дельмарис. Продвигаясь среди разноцветных кораллов и светящихся растений, ты встречаешь гигантского Морского Змея с изумрудной чешуей у входа в сверкающую подводную пещеру, где, по слухам, спрятан Цветок Солнца...",
+                scene4_intro_3B: "После быстрого, но головокружительного начала ты прибыла в место недалеко от центра Дельмариса. Вокруг немного жутковато, но ты продвигаешься вперед и встречаешь гигантского Морского Змея с изумрудной чешуей у входа в сверкающую подводную пещеру, где, по слухам, спрятан Цветок Солнца...",
+                scene4_4A_result: "Ты прямо отвечаешь: 'Солнце!' Змей впечатлен и открывает путь. Уверенно ты входишь в пещеру.",
+                scene4_4B_result: "Ты выражаешь почтение Морскому Змею и просишь косвенную подсказку. Змей мудро оглядывает тебя. 'То, что ты ищешь, желанно и здесь, и наверху, дарующее жизнь тепло' - говорит он. Ты отвечаешь: 'Солнце!' Змей открывает путь, шепча: 'Следуй за светом, но не обманись ложным сиянием'.",
+                scene5_intro_4A: "Морской Змей гордо склоняет голову. 'Ты угадала, смертная. Ты доказала свою состоятельность.' Ты ступаешь в пещеру. Внутри – лабиринт. Однако ты замечаешь след из светящихся водорослей на дне.",
+                scene5_intro_4B: "После загадки Морской Змей дал тебе еще и подсказку: 'Следуй за светом, но не обманись ложным сиянием.' С этими словами ты входишь в пещеру. Внутри – лабиринт. Ты замечаешь след из светящихся водорослей на дне.",
+                scene5_5A_result: "Ты следуешь за светящимся следом из водорослей. Этот таинственный путь ведет тебя прямо к Цветку Солнца.",
+                scene5_5B_result: "В пещере ты встречаешь мудрую морскую черепаху со светящейся чешуей. Ты спрашиваешь ее о Цветке Солнца. Черепаха древним голосом указывает путь и добавляет: 'Этот цветок принадлежит и Земле, и Дельмарису. Сделай мудрый выбор, юная душа.'",
+                scene6_intro_5A: "Доверившись интуиции, ты последовала за следом из водорослей и нашла Цветок Солнца! Он сияет ослепительным светом. Как только ты протягиваешь руку к цветку, на древней каменной плите у его основания появляются светящиеся письмена...",
+                scene6_intro_5B: "С помощью и предупреждением мудрой черепахи ты нашла Цветок Солнца! Он сияет ослепительным светом. Как только ты протягиваешь руку к цветку, на древней каменной плите у его основания появляются светящиеся письмена...",
+                scene6_6A_result: "Думая о немедленном спасении Земли, ты осторожно берешь Цветок Солнца. Ты чувствуешь огромную силу в своих руках.",
+                scene6_6B_result: "Думая и о Земле, и о Дельмарисе, который принял тебя, ты решаешь следовать ритуальным шагам на каменной плите. Прикоснувшись к Цветку Солнца, ты шепчешь древние слова. Энергия цветка мягко поднимается вверх.",
+                scene7_text_6A: "<p>Ты быстро покинула Дельмарис и вернулась на Землю. Прибыв в город, ты подняла Цветок Солнца к небу. Ослепительный луч света вырвался из цветка, поднялся в небо, мгновенно разрушил темную магию, и заключенное солнце во всем своем великолепии обрело свободу. Земля мгновенно осветилась, а люди и все живые существа издали громкий крик радости. Однако та священная пещера в Дельмарисе теперь потеряла свое прежнее сияние, превратившись в обычную подводную впадину. Была принесена жертва.</p><button class='choice-button' onclick='clearTimeout(sceneTransitionTimeout); document.getElementById(\"scene7-text-ru\").classList.add(\"hidden\"); populateScene8Choices(\"6A\"); showScene(\"scene8-ru\");'>Встреться со своей судьбой</button>",
+                scene7_text_6B: "<p>Этот процесс был медленнее, но полон надежды. Наконец, вернувшись на Землю, ты увидела, что солнце постепенно возвращается. Сначала был тусклый свет, но со временем он усилился. Через несколько дней солнце обрело свое прежнее сияние. А Цветок Солнца в Дельмарисе остался на месте, продолжая освещать пещеру и ее окрестности, даря надежду и энергию обитателям Дельмариса. Был установлен баланс.</p><button class='choice-button' onclick='clearTimeout(sceneTransitionTimeout); document.getElementById(\"scene7-text-ru\").classList.add(\"hidden\"); populateScene8Choices(\"6B\"); showScene(\"scene8-ru\");'>Встреться со своей судьбой</button>",
+                scene8_intro_6A: "Земля спасена, но пещера в Дельмарисе угасла. Как ты поступишь с этой тяжелой тайной?",
+                scene8_button_8A1: "Полностью скрыть тайну Дельмариса и пережитого приключения",
+                scene8_button_8A2: "Поделиться информацией о Дельмарисе только со Старушкой (рассказав и об угасшей пещере)",
+                scene8_intro_6B: "Земля медленно осветилась, и Цветок Солнца в Дельмарисе был сохранен. Как ты поступишь с этой полной надежды информацией?",
+                scene8_button_8B1: "Рассказать о том, что Дельмарис сохранен и что между двумя мирами может возникнуть связь",
+                scene8_8A1_result_title: "КОНЕЦ 1: Таинственная Спасительница и Угасшее Воспоминание",
+                scene8_8A1_result_text: "Элариэн помнят как героиню, спасшую Землю, но тайну Дельмариса и Цветка Солнца (и угасшей пещеры) она навсегда сохранит в своем сердце. Земля счастлива, но о жертве Дельмариса никто не знает. Элариэн время от времени смотрит на море и живет с угасшим воспоминанием о подводном мире, с тихим бременем героини.",
+                scene8_8A2_result_title: "КОНЕЦ 2: Разделенная Ответственность и Урок на Будущее",
+                scene8_8A2_result_text: "Элариэн спасла Землю. Она рассказывает Старушке все, что пережила, и о том, как пещера Дельмариса угасла с исчезновением Цветка Солнца. Старушка понимает жертву Элариэн и потерю Дельмариса. Вместе они решают, что это событие должно стать уроком на будущее – уроком уважения к природному балансу и понимания цены магии. Земля счастлива, но Элариэн и Старушка знают, что великие силы влекут за собой большую ответственность и иногда приходится делать трудный выбор, помня об этом с мудростью.",
+                scene8_8B1_result_title: "КОНЕЦ 3: Хранительница Двух Миров и Расцветающая Надежда",
+                scene8_8B1_result_text: "Элариэн спасла Землю, и Цветок Солнца в Дельмарисе все еще на месте. Она делится этой информацией со Старушкой и другими мудрыми людьми. На Земле пробуждается большое уважение и любопытство к Дельмарису. Возможно, в будущем между двумя мирами установится осторожное и уважительное общение. Элариэн видят не только как спасительницу Земли, но и как друга и хранительницу Дельмариса. Надежда на баланс и взаимопонимание между двумя мирами расцветает.",
+                scene8_result_message: "Шепот твоего выбора эхом разносится... Твоя судьба написана.",
+                continue_button: "Продолжить",
+                start_story_button: "Начать историю",
+                restart_button: "Начать Сначала",
+                kayra_message: "Привет! Меня зовут Кайра, мне 8 лет. Эту историю я написала, спроектировала, запрограммировала и представляю вам, используя инструменты искусственного интеллекта, которым я научилась на уроках ИИ на нашем курсе Algorithmics. Надеюсь, вам понравится!"
+            }
+        };
+
+        function selectLanguage(lang) {
+            currentLanguage = lang;
+            document.documentElement.lang = lang; // HTML lang özelliğini güncelle
+            document.getElementById('language-selection').classList.add('hidden');
+            document.getElementById('kayra-message-text').innerText = storyContent[currentLanguage].kayra_message;
+            document.getElementById('start-story-button').innerText = storyContent[currentLanguage].start_story_button;
+            document.getElementById('kayra-message-container').classList.remove('hidden');
+        }
+
+        function startStory() {
+            document.getElementById('kayra-message-container').classList.add('hidden');
+            showScene(`scene1-${currentLanguage}`);
+            // Dil seçimine göre yeniden başlatma butonunun metnini ayarla
+            const restartButtonEndingTR = document.querySelector(`#ending-tr .choice-button`);
+            if(restartButtonEndingTR) restartButtonEndingTR.innerText = storyContent['tr'].restart_button;
+            const restartButtonEndingRU = document.querySelector(`#ending-ru .choice-button`);
+            if(restartButtonEndingRU) restartButtonEndingRU.innerText = storyContent['ru'].restart_button;
+
+        }
+
+
+        function showResult(sceneId, message, nextSceneFunc) {
+            clearTimeout(sceneTransitionTimeout);
+            const langSuffix = currentLanguage; // Mevcut dil son eki
+
+            const resultDiv = document.getElementById(`result-${sceneId}`); // sceneId zaten dil son ekini içermeli
+            if (!resultDiv) {
+                 if (nextSceneFunc) {
+                    nextSceneFunc();
+                }
+                return;
+            }
+
+            resultDiv.innerHTML = message;
+
+            const existingButton = resultDiv.querySelector('.small-continue-button');
+            if (existingButton) {
+                existingButton.remove();
+            }
+
+            const continueButton = document.createElement('button');
+            continueButton.innerText = storyContent[langSuffix].continue_button;
+            continueButton.className = 'small-continue-button';
+            continueButton.onclick = () => {
+                clearTimeout(sceneTransitionTimeout);
+                if (nextSceneFunc) nextSceneFunc();
+                resultDiv.classList.add('hidden');
+            };
+
+            resultDiv.appendChild(document.createElement('br'));
+            resultDiv.appendChild(continueButton);
+            resultDiv.classList.remove('hidden');
+
+            sceneTransitionTimeout = setTimeout(() => {
+                if (nextSceneFunc) nextSceneFunc();
+                resultDiv.classList.add('hidden');
+            }, 8000);
+        }
+
+        function showScene(sceneIdWithLang) { // Parametre adı artık dil son ekini içeriyor
+            const scenes = document.querySelectorAll('.scene');
+            scenes.forEach(scene => scene.classList.add('hidden'));
+            const currentScene = document.getElementById(sceneIdWithLang);
+            if (currentScene) {
+                currentScene.classList.remove('hidden');
+                 // İlgili dilin hikaye konteynerini göster
+                if (currentLanguage === 'tr') {
+                    document.getElementById('story-tr').classList.remove('hidden');
+                    document.getElementById('story-ru').classList.add('hidden');
+                } else {
+                    document.getElementById('story-ru').classList.remove('hidden');
+                    document.getElementById('story-tr').classList.add('hidden');
+                }
+            }
+            window.scrollTo(0, 0);
+        }
+
+        function makeChoice(currentSceneIdWithLang, choiceLetter) { // choice -> choiceLetter
+            const langSuffix = currentLanguage;
+            // playerChoices[currentSceneIdWithLang] = choiceLetter; // Bu satır gerekli değil gibi
+            let resultMessage = "";
+            let nextSceneTransitionFunc;
+
+            // Sahne ID'sinden dil son ekini çıkarıp ana sahne numarasını al
+            const baseSceneId = currentSceneIdWithLang.replace(`-${langSuffix}`, ''); // Örn: "scene1"
+
+            if (baseSceneId === 'scene1') {
+                resultMessage = storyContent[langSuffix][`scene1_${choiceLetter}_result`];
+                nextSceneTransitionFunc = () => {
+                    document.getElementById(`scene2-intro-${langSuffix}`).innerText = storyContent[langSuffix][`scene2_intro_${choiceLetter}`];
+                    populateScene2Choices(choiceLetter); // choiceLetter'ı gönder
+                    showScene(`scene2-${langSuffix}`);
+                };
+            }
+            else if (baseSceneId === 'scene2') {
+                const prevChoiceScene1 = playerChoices[`scene1-${langSuffix}`]; // scene1'deki seçimi al
+                resultMessage = storyContent[langSuffix][`scene2_${prevChoiceScene1}${choiceLetter}_result`]; // Örn: scene2_1AA_result yerine scene2_1A_2A1_result gibi
+                nextSceneTransitionFunc = () => showScene(`scene3-${langSuffix}`);
+            }
+            else if (baseSceneId === 'scene3') {
+                resultMessage = storyContent[langSuffix][`scene3_${choiceLetter}_result`];
+                nextSceneTransitionFunc = () => {
+                    document.getElementById(`scene4-intro-${langSuffix}`).innerText = storyContent[langSuffix][`scene4_intro_${choiceLetter}`];
+                    showScene(`scene4-${langSuffix}`);
+                };
+            }
+            else if (baseSceneId === 'scene4') {
+                resultMessage = storyContent[langSuffix][`scene4_${choiceLetter}_result`];
+                nextSceneTransitionFunc = () => {
+                     document.getElementById(`scene5-intro-${langSuffix}`).innerText = storyContent[langSuffix][`scene5_intro_${choiceLetter}`];
+                    showScene(`scene5-${langSuffix}`);
+                };
+            }
+            else if (baseSceneId === 'scene5') {
+                resultMessage = storyContent[langSuffix][`scene5_${choiceLetter}_result`];
+                nextSceneTransitionFunc = () => {
+                    document.getElementById(`scene6-intro-${langSuffix}`).innerText = storyContent[langSuffix][`scene6_intro_${choiceLetter}`];
+                    showScene(`scene6-${langSuffix}`);
+                };
+            }
+            else if (baseSceneId === 'scene6') {
+                let scene7TextContent = storyContent[langSuffix][`scene7_text_${choiceLetter}`];
+                resultMessage = storyContent[langSuffix][`scene6_${choiceLetter}_result`];
+
+                const scene6ResultDiv = document.getElementById(`result-scene6-${langSuffix}`);
+                scene6ResultDiv.innerHTML = resultMessage;
+                const continueButton6 = document.createElement('button');
+                continueButton6.innerText = storyContent[langSuffix].continue_button;
+                continueButton6.className = 'small-continue-button';
+                continueButton6.onclick = () => {
+                    clearTimeout(sceneTransitionTimeout);
+                    document.getElementById(`scene7-title-${langSuffix}`).innerText = "Kararın Yankıları"; // Bu da dile göre olmalı
+                     if (langSuffix === 'ru') document.getElementById(`scene7-title-${langSuffix}`).innerText = "Отголоски Решения";
+                    const scene7TextDiv = document.getElementById(`scene7-text-${langSuffix}`);
+                    scene7TextDiv.innerHTML = scene7TextContent;
+                    scene7TextDiv.classList.remove('hidden');
+                    showScene(`scene7-${langSuffix}`);
+                    scene6ResultDiv.classList.add('hidden');
+                };
+                const existingButton = scene6ResultDiv.querySelector('.small-continue-button');
+                if (existingButton) existingButton.remove();
+                scene6ResultDiv.appendChild(document.createElement('br'));
+                scene6ResultDiv.appendChild(continueButton6);
+                scene6ResultDiv.classList.remove('hidden');
+
+                sceneTransitionTimeout = setTimeout(() => {
+                    document.getElementById(`scene7-title-${langSuffix}`).innerText = "Kararın Yankıları";
+                     if (langSuffix === 'ru') document.getElementById(`scene7-title-${langSuffix}`).innerText = "Отголоски Решения";
+                    const scene7TextDiv = document.getElementById(`scene7-text-${langSuffix}`);
+                    scene7TextDiv.innerHTML = scene7TextContent;
+                    scene7TextDiv.classList.remove('hidden');
+                    showScene(`scene7-${langSuffix}`);
+                    scene6ResultDiv.classList.add('hidden');
+                }, 8000);
+                return; // Sahne 6 için showResult'ı doğrudan çağırmıyoruz, kendi mantığı var.
+            }
+            else if (baseSceneId === 'scene8') {
+                const prevChoiceScene6 = playerChoices[`scene6-${langSuffix}`]; // scene6'daki seçimi al
+                let endingTitle = storyContent[langSuffix][`scene8_${prevChoiceScene6}${choiceLetter}_result_title`];
+                let endingText = storyContent[langSuffix][`scene8_${prevChoiceScene6}${choiceLetter}_result_text`];
+                resultMessage = storyContent[langSuffix].scene8_result_message;
+
+                nextSceneTransitionFunc = () => {
+                    document.getElementById(`ending-title-${langSuffix}`).innerText = endingTitle;
+                    document.getElementById(`ending-text-${langSuffix}`).innerText = endingText;
+                    showScene(`ending-${langSuffix}`);
+                };
+            }
+
+            if (nextSceneTransitionFunc) {
+                 showResult(currentSceneIdWithLang, resultMessage, nextSceneTransitionFunc);
+            }
+        }
+
+
+        function populateScene2Choices(scene1ChoiceLetter) {
+            const langSuffix = currentLanguage;
+            const choicesDiv = document.getElementById(`choices-scene2-${langSuffix}`);
+            choicesDiv.innerHTML = '';
+            if (scene1ChoiceLetter === '1A') {
+                choicesDiv.innerHTML += `<button class="choice-button" onclick="makeChoice('scene2-${langSuffix}', 'A1')">${storyContent[langSuffix].scene2_button_2A1}</button>`;
+                choicesDiv.innerHTML += `<button class="choice-button" onclick="makeChoice('scene2-${langSuffix}', 'A2')">${storyContent[langSuffix].scene2_button_2A2}</button>`;
+            } else { // 1B
+                choicesDiv.innerHTML += `<button class="choice-button" onclick="makeChoice('scene2-${langSuffix}', 'B1')">${storyContent[langSuffix].scene2_button_2B1}</button>`;
+                choicesDiv.innerHTML += `<button class="choice-button" onclick="makeChoice('scene2-${langSuffix}', 'B2')">${storyContent[langSuffix].scene2_button_2B2}</button>`;
+            }
+             // Sahne 2 için seçimleri yaparken playerChoices'a scene1 seçimini kaydet
+            playerChoices[`scene1-${langSuffix}`] = scene1ChoiceLetter;
+        }
+
+        function populateScene8Choices(scene6ChoiceLetter) {
+            const langSuffix = currentLanguage;
+            const choicesDiv = document.getElementById(`choices-scene8-${langSuffix}`);
+            choicesDiv.innerHTML = '';
+             // Sahne 8 için seçimleri yaparken playerChoices'a scene6 seçimini kaydet
+            playerChoices[`scene6-${langSuffix}`] = scene6ChoiceLetter;
+
+            if (scene6ChoiceLetter === '6A') {
+                document.getElementById(`scene8-intro-${langSuffix}`).innerText = storyContent[langSuffix].scene8_intro_6A;
+                choicesDiv.innerHTML += `<button class="choice-button" onclick="makeChoice('scene8-${langSuffix}', 'A1')">${storyContent[langSuffix].scene8_button_8A1}</button>`;
+                choicesDiv.innerHTML += `<button class="choice-button" onclick="makeChoice('scene8-${langSuffix}', 'A2')">${storyContent[langSuffix].scene8_button_8A2}</button>`;
+            } else { // 6B
+                document.getElementById(`scene8-intro-${langSuffix}`).innerText = storyContent[langSuffix].scene8_intro_6B;
+                choicesDiv.innerHTML += `<button class="choice-button" onclick="makeChoice('scene8-${langSuffix}', 'B1')">${storyContent[langSuffix].scene8_button_8B1}</button>`;
+            }
+        }
+
+
+        function restartGame() {
+            playerChoices = {};
+            const results = document.querySelectorAll('.result');
+            results.forEach(r => {
+                r.innerHTML = '';
+                r.classList.add('hidden');
+            });
+            clearTimeout(sceneTransitionTimeout);
+            // Tüm hikaye div'lerini gizle
+            document.getElementById('story-tr').classList.add('hidden');
+            document.getElementById('story-ru').classList.add('hidden');
+            // Dil seçimi ekranını göster
+            document.getElementById('language-selection').classList.remove('hidden');
+        }
+
+        // Başlangıçta dil seçimi ekranını göster
+        window.onload = () => {
+            document.getElementById('language-selection').classList.remove('hidden');
+            document.getElementById('kayra-message-container').classList.add('hidden');
+            document.getElementById('story-tr').classList.add('hidden');
+            document.getElementById('story-ru').classList.add('hidden');
+        };
+
+    </script>
+</body>
+</html>

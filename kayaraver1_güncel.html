@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Elarien'in Macerası: Güneşin Fısıltısı</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Lato:wght@300;400;700&display=swap');
+
+        body {
+            font-family: 'Lato', sans-serif;
+            line-height: 1.7;
+            margin: 0;
+            background-color: #1a1a2e;
+            background-image: radial-gradient(circle, #16223f 0%, #1a1a2e 70%);
+            color: #e0e0e0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        .container {
+            max-width: 850px;
+            width: 100%;
+            background: rgba(22, 34, 63, 0.85);
+            padding: 30px 40px;
+            border-radius: 12px;
+            box-shadow: 0 0 30px rgba(128, 0, 128, 0.5), 0 0 15px rgba(75, 0, 130, 0.3);
+            border: 1px solid rgba(128, 0, 128, 0.3);
+        }
+
+        h1 { /* Hikaye Adı */
+            font-family: 'Cinzel', serif;
+            color: #c592ff; /* Açık lavanta/mor */
+            text-align: center;
+            text-shadow: 0 0 10px rgba(197, 146, 255, 0.8), 0 0 5px rgba(197, 146, 255, 0.5);
+            margin-bottom: 30px;
+            font-size: 2.5em;
+        }
+        h2 { /* Sahne Başlıkları */
+            font-family: 'Cinzel', serif;
+            color: #f0f8ff; /* Alice Blue - Neon Kırık Beyaz gibi */
+            text-align: center;
+            text-shadow: 0 0 8px rgba(220, 230, 255, 0.7), 0 0 4px rgba(200, 210, 240, 0.5); /* Hafif mavi/beyaz parlama */
+            margin-bottom: 25px;
+            font-size: 1.8em;
+            margin-top: 30px;
+        }
+
+        .scene {
+            margin-bottom: 35px;
+            padding-bottom: 25px;
+            border-bottom: 1px dashed rgba(128, 0, 128, 0.4);
+        }
+        .scene:last-child {
+            border-bottom: none;
+        }
+
+        p {
+            margin-bottom: 15px;
+            font-size: 1.05em;
+        }
+
+        .prompt {
+            font-style: italic;
+            color: #b0aac0;
+            margin-bottom: 15px;
+            padding-left: 15px;
+            border-left: 3px solid #8a5a9a;
+        }
+
+        .choice-button {
+            display: block;
+            background-color: #5e3d7c;
+            color: #f0e6ff;
+            padding: 12px 18px;
+            margin: 12px 0;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            text-align: left;
+            width: 100%;
+            box-sizing: border-box;
+            font-size: 1em;
+            font-family: 'Lato', sans-serif;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+        }
+        .choice-button:hover {
+            background-color: #8a5a9a;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(138, 90, 154, 0.4);
+        }
+        .small-continue-button {
+            background-color: #3e2a50;
+            color: #d9c8ff;
+            padding: 8px 12px;
+            margin-top: 10px;
+            border: 1px solid #5e3d7c;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.9em;
+            float: right;
+            clear: both; /* Eğer result div içinde başka float varsa diye */
+        }
+        .small-continue-button:hover {
+            background-color: #5e3d7c;
+        }
+
+
+        .ipucu {
+            background-color: rgba(75, 0, 130, 0.2);
+            padding: 15px;
+            margin-top:15px;
+            border-left: 4px solid #c592ff;
+            font-size: 0.95em;
+            border-radius: 6px;
+            color: #d9c8ff;
+        }
+        .ipucu strong { color: #f0e6ff; }
+
+        .result {
+            background-color: rgba(22, 160, 133, 0.15);
+            color: #a7f5e8;
+            padding: 15px;
+            margin-top: 15px;
+            border-left: 4px solid #1abc9c;
+            border-radius: 6px;
+            font-weight: bold;
+            overflow: auto; /* float'lı buton için */
+        }
+        .result.no-click {
+             cursor: default;
+        }
+
+
+        .hidden {
+            display: none;
+        }
+
+        #ending-text {
+            font-size: 1.1em;
+            font-style: italic;
+            color: #f0e6ff;
+            text-align: center;
+        }
+
+        .scene-image {
+            width: 100%;
+            max-height: 450px;
+            object-fit: cover;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.4);
+            border: 1px solid rgba(197, 146, 255, 0.2);
+        }
+
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Elarien'in Macerası: Güneşin Fısıltısı</h1>
+
+        <div id="scene1" class="scene">
+            <h2>Kaybolan Güneş ve Gizemli Fısıltı</h2>
+            <img src="https://i.imgur.com/9fHfLsN.jpeg" alt="Kaybolan Güneş ve Yaşlı Teyze Elarien'e fısıldıyor" class="scene-image">
+            <p class="prompt">Gök kubbe simsiyah bir örtüyle kaplandığında, Dünya'nın neşesi de onunla birlikte sönmüştü. Kötü bir sihirbazın karanlık büyüsü, güneşi hapsetmiş, insanları ve diğer Dünya canlılarını umutsuzluğa boğmuştu. Şehirde bir panik havası hakimdi. İşte tam o karmaşanın ortasında, yüzü zamanın çizgileriyle dolu bilge bir Yaşlı Teyze belirdi. Kalabalığın arasından sıyrılıp doğruca maceraperest ruhu ve içten gülümsemesiyle tanınan Elarien'in yanına yaklaştı.</p>
+            <p>"Elarien," diye fısıldadı Yaşlı Teyze, sesi sadece genç kızın duyabileceği kadar kısıktı. "Güneşi geri getirebilecek tek bir şey var: Güneş Çiçeği. Onu bulmalısın. O, sıradan bir çiçek değil. Derinlerde, su altı dünyası Delmaris'te saklı."</p>
+            <p class="prompt">Elarien, Yaşlı Teyze'nin sözlerinin ardından bir anlık sessizlikte, içgüdüsel olarak şehrin sembolik yerlerine dikkat kesilir. Şehrin en eski çeşmesinin yanında, yıllardır kimsenin fark etmediği, yosun tutmuş bir taş kabartmaya gözü takılır. Çeşmeye yaklaşır ve eliyle yosunları temizlediğinde, soluk bir kabartma ortaya çıkar.</p>
+            <div class="ipucu"><strong>İPUCU (Kabartmadaki Yazı/Şekil):</strong> "Derinlerin ışığı, eski sözlerde uyur. Bilgelik kapısı, sessiz satırlarda açılır."</div>
+
+            <p>Ne yapmalısın?</p>
+            <button class="choice-button" onclick="makeChoice('scene1', '1A')">Yaşlı Teyze'ye Daha Fazla Detay Sormak</button>
+            <button class="choice-button" onclick="makeChoice('scene1', '1B')">Hemen Şehirde Bilgi Toplamaya Başlamak</button>
+            <div id="result-scene1" class="result hidden"></div>
+        </div>
+
+        <div id="scene2" class="scene hidden">
+            <h2>Kadim Bilginin Peşinde</h2>
+            <!-- Sahne 2 Görseli Buraya Eklenecek -->
+            <!-- <img src="LINK_BURAYA" alt="Sahne 2 Açıklaması" class="scene-image"> -->
+            <p class="prompt">Elarien vakit kaybetmedi. Güneşi geri getirme umuduyla dolup taşan kalbiyle ilk iş olarak şehrin kadim kütüphanesine koştu. Delmaris hakkında bilgi arıyordu. Kütüphaneci, yaşlı ve yorgun gözlerle ona baktı. "Delmaris mi? Öyle bir yer ya da hakkında yazılmış bir kitap hiç duymadım," dedi omuzlarını silkerek. Elarien hayal kırıklığıyla tam kapıdan çıkmak üzereyken, yere düşmüş eski bir kitap ayracını fark eder. Ayraç oldukça eskidir ve üzerinde tuhaf bir sembol vardır.</p>
+            <div class="ipucu"><strong>İPUCU (Kitap Ayracındaki Sembol ve Minik Not):</strong> Ayracın üzerinde dalgaları ve bir çiçeği andıran stilize bir sembol vardır. Arkasında ise minicik, zar zor okunan bir not: "En değerli hazineler, en kuytu köşelerde saklıdır."</div>
+            <p id="scene2-intro"></p>
+            <p>Kitapta neye odaklanmalısın?</p>
+            <div id="choices-scene2">
+                <!-- Seçenekler JavaScript ile eklenecek -->
+            </div>
+            <div id="result-scene2" class="result hidden"></div>
+        </div>
+
+        <div id="scene3" class="scene hidden">
+            <h2>Sualtı Dünyasına İlk Adım ve Akıntının Seçimi</h2>
+            <!-- Sahne 3 Görseli Buraya Eklenecek -->
+            <!-- <img src="LINK_BURAYA" alt="Sahne 3 Açıklaması" class="scene-image"> -->
+            <p class="prompt">Kitaptaki ipuçlarını takip eden Elarien, hırçın dalgaların dövdüğü sarp kayalıkların arasında, ay ışığında parlayan bir su girdabına ulaştı. Girdabın kenarına geldiğinde, suyun içeri doğru iki farklı belirgin akıntıyla çekildiğini fark eder: Biri sakin ve ışıltılı, diğeri hızlı ve derin. Girdabın kenarındaki kayalara sıkışmış, eski bir denizci günlüğünden kopmuş, suya dayanıklı parşömen parçası görür.</p>
+            <div class="ipucu"><strong>İPUCU (Parşömen Parçasındaki Yazı):</strong> "... girdabın kalbine iki yol var. Sakin sular bilgeliği, hızlı sular cesareti sınar. Ama unutma, Delmaris her iki erdemi de ödüllendirir, yolun sonu aynı denize çıkar."</div>
+            <p>Hangi akıntıyı seçersin?</p>
+            <button class="choice-button" onclick="makeChoice('scene3', '3A')">Sakin ve Işıltılı Akıntıyı Seçmek</button>
+            <button class="choice-button" onclick="makeChoice('scene3', '3B')">Hızlı ve Derin Akıntıyı Seçmek</button>
+            <div id="result-scene3" class="result hidden"></div>
+        </div>
+
+        <div id="scene4" class="scene hidden">
+            <h2>Bilge Yılanın Kapısını Açmak</h2>
+            <!-- Sahne 4 Görseli Buraya Eklenecek -->
+            <!-- <img src="LINK_BURAYA" alt="Sahne 4 Açıklaması" class="scene-image"> -->
+            <p class="prompt" id="scene4-intro">Gözlerini açtığında, rengarenk mercanların, ışıldayan deniz bitkilerinin ve zarifçe süzülen Deniz dünyası canlılarının arasında, Delmaris'teydi. Ancak Güneş Çiçeği'nin saklı olduğu söylenen parıltılı mağaranın girişinde, pulları zümrüt gibi parlayan dev bir Deniz Yılanı bekliyordu. Mağara girişinin yan tarafındaki duvarda, suyun aşındırmasıyla neredeyse silinmiş, çok eski bir çizim fark edersin.</p>
+            <div class="ipucu"><strong>İPUCU (Duvardaki Çizim):</strong> Çizimde, yukarıda parlayan bir disk (güneş), altında ise ona doğru uzanan bir çiçek figürü ve çiçeğin etrafında toplanmış su altı canlıları resmedilmiştir. En altta ise yılanı andıran kıvrımlı bir şekil vardır.</div>
+            <p>Yılan, bilge bir sesle konuştu: "Mağaraya girmek istiyorsan, bilmecemi çözmelisin: Hem ısıtırım hem aydınlatırım, ama dokunamazsın. Kaybolduğumda dünya yas tutar. Ben neyim? Üç hakkın var."</p>
+            <p>Ne yaparsın?</p>
+            <button class="choice-button" onclick="makeChoice('scene4', '4A')">Doğrudan Mantık ve Bilgiye Güvenerek "Güneş!" Diye Cevap Vermek</button>
+            <button class="choice-button" onclick="makeChoice('scene4', '4B')">Deniz Yılanı ile Etkileşim Kurmaya Çalışmak (Önce saygını sunup dolaylı bir ipucu istemek)</button>
+            <div id="result-scene4" class="result hidden"></div>
+        </div>
+
+        <div id="scene5" class="scene hidden">
+            <h2>Kutsal Mağarada Işığı Aramak</h2>
+            <!-- Sahne 5 Görseli Buraya Eklenecek -->
+            <!-- <img src="LINK_BURAYA" alt="Sahne 5 Açıklaması" class="scene-image"> -->
+            <p class="prompt" id="scene5-intro">Deniz Yılanı memnuniyetle gülümsedi. "Doğru bildin, maceracı kız. Mağaraya girebilirsin." Elarien mağaraya girdiğinde, arayışının kolay olmayacağını anladı. Mağara labirent gibiydi. Mağaranın karmaşık dehlizlerinde ilerlerken, yerdeki parlayan küçük bir yosun türünün belirli bir yöne doğru daha yoğunlaştığını ve hafif bir ışık izi oluşturduğunu fark edersin.</p>
+            <div class="ipucu"><strong>İPUCU (Yosunların Oluşturduğu İz):</strong> Fiziksel bir metin yoktur, ancak yosunların oluşturduğu hafifçe parlayan patika, "Doğru yol, doğanın kendi ışığıyla aydınlanır" mesajını verir.</div>
+            <p>Nasıl ilerlersin?</p>
+            <button class="choice-button" onclick="makeChoice('scene5', '5A')">Gördüğün İlk İlginç Yolu/Sezgisel Işığı (Yosun İzini) Takip Etmek</button>
+            <button class="choice-button" onclick="makeChoice('scene5', '5B')">Karşılaştığın Deniz Canlılarından (Bilge bir kaplumbağadan) Yardım İstemek</button>
+            <div id="result-scene5" class="result hidden"></div>
+        </div>
+
+        <div id="scene6" class="scene hidden">
+            <h2>(DORUK NOKTASI) Hayati Karar Anı: İki Yol</h2>
+            <!-- Sahne 6 Görseli Buraya Eklenecek -->
+            <!-- <img src="LINK_BURAYA" alt="Sahne 6 Açıklaması" class="scene-image"> -->
+            <p class="prompt" id="scene6-intro">Sonunda, en derin ve en karanlık köşelerden birinde, etrafına altın rengi bir ışık yayan, yaprakları minik güneşler gibi parlayan o eşsiz çiçeği gördün: Güneş Çiçeği. Tam çiçeğe uzanacakken, çiçeğin dibindeki kadim taş tablette parlayan yazılar belirdi. İki seçeneğin var. Bu zor kararı vermeden önce bir an gözlerini kapatıp iç sesini dinlemeye çalışırsın veya dikkatini tamamen çiçeğe odaklarsın. Bu derin konsantrasyon anında çiçeğin ince mesajını algılarsın.</p>
+            <div class="ipucu"><strong>İPUCU (Çiçekten Gelen Fısıltı/Işık Titreşimi):</strong> "Gerçek güç, fedakarlıkta ya da paylaşımdadır. Kalbin hangi yolu aydınlatıyorsa, o yol doğrudur. İki dünya da yaşamı hak eder."</div>
+            <p>Taş Tabletteki Yazılar:</p>
+            <p><strong>Seçenek 1:</strong> Çiçeği al ve Dünya'ya götür. Güneş derhal Dünya'ya dönecek, karanlık tamamen yok olacak. Ancak Güneş Çiçeği'nin tüm enerjisi bu süreçte tükenecek ve Delmaris'in bu kutsal mağarası, çiçeğin o eşsiz parıltısından mahrum kalacak, yavaşça soluklaşacaktır.</p>
+            <p><strong>Seçenek 2:</strong> Çiçeği burada bırak, ama özünü Dünya'ya yönlendir. Bu kadim mağarada özel bir ritüel gerçekleştir. Güneş Dünya'ya dönecek, ama bu biraz daha zaman alabilir ve ilk başta o kadar güçlü olmayabilir. Ancak Güneş Çiçeği varlığını Delmaris'te sürdürecek, mağarayı aydınlatmaya ve Delmaris'e yaşam enerjisi vermeye devam edecektir.</p>
+            <p>Kararın ne olacak?</p>
+            <button class="choice-button" onclick="makeChoice('scene6', '6A')">Çiçeği Alıp Dünya'ya Götürmek (Dünya Öncelikli)</button>
+            <button class="choice-button" onclick="makeChoice('scene6', '6B')">Çiçeği Bırakıp Özünü Yönlendirmek (Dengeli Çözüm)</button>
+            <div id="result-scene6" class="result hidden"></div>
+        </div>
+
+        <div id="scene7" class="scene hidden">
+            <h2 id="scene7-title">Kararın Yankıları</h2>
+            <!-- Sahne 7 Görseli Buraya Eklenecek (Duruma göre farklı olabilir) -->
+            <!-- <img src="LINK_BURAYA_7A_VEYA_7B" alt="Sahne 7 Açıklaması" class="scene-image"> -->
+            <div id="scene7-text" class="result no-click" style="padding: 10px;"></div>
+            <!-- Sahne 8'e geçiş butonu JavaScript ile eklenecek (artık scene7-text içinde) -->
+        </div>
+
+        <div id="scene8" class="scene hidden">
+            <h2>Aydınlığın Dönüşü ve Kahramanın Geleceği</h2>
+            <!-- Sahne 8 Görseli Buraya Eklenecek -->
+            <!-- <img src="LINK_BURAYA" alt="Sahne 8 Açıklaması" class="scene-image"> -->
+            <p class="prompt">Güneş Dünya'ya geri dönmüştür. Kötü sihirbazın büyüsü bozulmuştur. Şehirde büyük bir kutlama başlar. Dünya canlıları sana minnettardır. Kutlamalar sırasında Yaşlı Teyze, yanına sessizce yaklaşır ve eline küçük, kapalı bir sedef kutu tutuşturur. Kutuyu açtığında içinde küçük, parlayan bir inci ve bir not bulursun.</p>
+            <div class="ipucu"><strong>İPUCU (Kutudaki Not):</strong> "Bazı sırlar denizin derinlikleri gibi korunmalı, bazı umutlar ise dalgalar gibi yayılmalı. Seçimin ne olursa olsun, bilgelik ışığın olsun."</div>
+            <p id="scene8-intro"></p>
+            <p>Ne yapacaksın?</p>
+            <div id="choices-scene8">
+                <!-- Seçenekler JavaScript ile eklenecek -->
+            </div>
+            <div id="result-scene8" class="result hidden"></div>
+        </div>
+
+        <div id="ending" class="scene hidden">
+            <h2 id="ending-title">SON</h2>
+            <!-- Son Görseli Buraya Eklenecek (Her son için farklı olabilir) -->
+            <!-- <img src="LINK_BURAYA_SON_X" alt="Son Açıklaması" class="scene-image"> -->
+            <p id="ending-text"></p>
+            <button class="choice-button" onclick="restartGame()">Yeniden Başla</button>
+        </div>
+
+    </div>
+
+    <script>
+        let playerChoices = {}; // Oyuncu seçimlerini saklamak için
+        let sceneTransitionTimeout; // Zamanlayıcıyı saklamak için
+
+        function showResult(sceneId, message, nextSceneFunc) {
+            clearTimeout(sceneTransitionTimeout);
+
+            const resultDiv = document.getElementById(`result-${sceneId}`);
+            if (!resultDiv) { // Eğer result div yoksa, bu durum özellikle sahne 7 için geçerli.
+                            // Sahne 7'nin kendi metin alanı ve butonu var.
+                if (sceneId === 'scene7-text-container') { // Sahne 7'nin özel durumu
+                     const scene7TextDiv = document.getElementById('scene7-text');
+                     scene7TextDiv.innerHTML = message; // Sahne 7'nin ana metnini ayarla
+                     scene7TextDiv.classList.remove('hidden');
+                     // Sahne 7'de "Devam Et" butonu zaten HTML içinde oluşturulacak
+                } else if (nextSceneFunc) {
+                    // Diğer durumlarda eğer result div yoksa ve nextSceneFunc varsa çağır
+                    nextSceneFunc();
+                }
+                return;
+            }
+
+            resultDiv.innerHTML = message; // Mesajı ayarla
+
+            const existingButton = resultDiv.querySelector('.small-continue-button');
+            if (existingButton) {
+                existingButton.remove(); // Varsa eski butonu kaldır
+            }
+
+            const continueButton = document.createElement('button');
+            continueButton.innerText = 'Devam Et';
+            continueButton.className = 'small-continue-button';
+            continueButton.onclick = () => {
+                clearTimeout(sceneTransitionTimeout);
+                if (nextSceneFunc) nextSceneFunc();
+                resultDiv.classList.add('hidden'); // Butona tıklanınca sonucu gizle
+            };
+
+            resultDiv.appendChild(document.createElement('br'));
+            resultDiv.appendChild(continueButton);
+            resultDiv.classList.remove('hidden');
+
+            sceneTransitionTimeout = setTimeout(() => {
+                if (nextSceneFunc) nextSceneFunc();
+                resultDiv.classList.add('hidden'); // Süre dolunca sonucu gizle
+            }, 8000); // 8 saniye
+        }
+
+        function showScene(sceneId) {
+            const scenes = document.querySelectorAll('.scene');
+            scenes.forEach(scene => scene.classList.add('hidden'));
+            const currentScene = document.getElementById(sceneId);
+            if (currentScene) {
+                currentScene.classList.remove('hidden');
+            }
+            window.scrollTo(0, 0);
+        }
+
+        function makeChoice(currentSceneId, choice) {
+            playerChoices[currentSceneId] = choice;
+            let resultMessage = "";
+            let nextSceneTransitionFunc;
+
+            if (currentSceneId === 'scene1') {
+                if (choice === '1A') {
+                    resultMessage = "Yaşlı Teyze gülümser: 'Delmaris'in yolu kalbinde ve eski yazılarda gizlidir. Çiçek, güneşin özünü taşır. Sihirbaz... onun adı bile karanlıktır, ama en büyük zayıflığı saf ışıktır.' Bu bilgiyle kütüphaneye yöneliyorsun.";
+                } else {
+                    resultMessage = "Şehirdeki yaşlılardan ve denizcilerden Delmaris hakkında çelişkili efsaneler duyuyorsun. Bu bilgilerle donanmış olarak kütüphaneye gitmeye karar veriyorsun.";
+                }
+                nextSceneTransitionFunc = () => {
+                    document.getElementById('scene2-intro').innerText = choice === '1A' ? "Yaşlı Teyze'nin 'eski yazılar' ve 'ışık' vurgusunu hatırlıyorsun." : "Duyduğun çeşitli Delmaris efsanelerini hatırlıyorsun.";
+                    populateScene2Choices(choice);
+                    showScene('scene2');
+                };
+                showResult(currentSceneId, resultMessage, nextSceneTransitionFunc);
+            }
+            else if (currentSceneId === 'scene2') {
+                if (choice === '2A.1') {
+                    resultMessage = "Kitabın özellikle Delmaris'e geçiş yöntemlerini ve Güneş Çiçeği'nin 'ışık' özelliklerini hızla tarıyorsun. Hızlı ve doğrudan bir yöntem dikkatini çekiyor.";
+                } else if (choice === '2A.2') {
+                    resultMessage = "Kitabı sadece geçit ve çiçek için değil, Delmaris'teki 'saf ışık' kaynakları veya sihirbazın büyüsünü bozabilecek ritüeller hakkında da inceliyorsun. Delmaris'in ekosistemi ve çiçeğin koruyucu ışığı hakkında daha fazla bilgi ediniyorsun.";
+                } else if (choice === '2B.1') {
+                    resultMessage = "Kitaptaki bilgileri, duyduğun efsanelerle (özellikle Delmaris'in sakinleri, tehlikeleri ve gizemli koruyucuları hakkında) karşılaştırarak okuyorsun. Daha donanımlı hissediyorsun.";
+                } else {
+                    resultMessage = "Duyduğun abartılı efsanelerden sonra kitaptaki en somut ve güvenilir görünen bilgilere odaklanıyorsun. Pratik ve hızlı çözümler dikkatini çekiyor.";
+                }
+                nextSceneTransitionFunc = () => showScene('scene3');
+                showResult(currentSceneId, resultMessage, nextSceneTransitionFunc);
+            }
+            else if (currentSceneId === 'scene3') {
+                if (choice === '3A') {
+                    resultMessage = "Sakin akıntıyı seçiyorsun. Geçişin yumuşak oluyor ve Delmaris'in huzurlu, iyi aydınlatılmış bir bölümüne varıyorsun.";
+                } else {
+                    resultMessage = "Hızlı ve derin akıntıyı seçiyorsun. Çalkantılı bir geçişle Delmaris'in daha derin, merkezi ama biraz tekinsiz bir noktasına hızla varıyorsun. Belki küçük bir eşyanı düşürdün.";
+                }
+                nextSceneTransitionFunc = () => {
+                    document.getElementById('scene4-intro').innerText = choice === '3A' ?
+                        "Sakin bir başlangıçla Delmaris'e vardın. Rengarenk mercanlar ve ışıldayan bitkiler arasında ilerlerken, Güneş Çiçeği'nin saklı olduğu söylenen parıltılı mağaranın girişinde, pulları zümrüt gibi parlayan dev bir Deniz Yılanı ile karşılaşıyorsun..." :
+                        "Hızlı ama sersemletici bir başlangıçla Delmaris'in merkezine yakın bir yere vardın. Etraf biraz tekinsiz görünse de ilerliyorsun ve Güneş Çiçeği'nin saklı olduğu söylenen parıltılı mağaranın girişinde, pulları zümrüt gibi parlayan dev bir Deniz Yılanı ile karşılaşıyorsun...";
+                    showScene('scene4');
+                };
+                showResult(currentSceneId, resultMessage, nextSceneTransitionFunc);
+            }
+            else if (currentSceneId === 'scene4') {
+                 if (choice === '4A') {
+                    resultMessage = "Doğrudan 'Güneş!' diye cevap veriyorsun. Yılan etkilenir ve yolu açar. Kendine güvenerek mağaraya giriyorsun.";
+                } else {
+                    resultMessage = "Deniz Yılanı'na saygını sunup dolaylı bir ipucu istiyorsun. Yılan, bilge gözleriyle seni süzer. 'Aradığın şey, hem burada hem de yukarıda özlenen, hayat veren sıcaklıktır' der. 'Güneş!' diye cevap veriyorsun. Yılan yolu açarken 'Işığı takip et, ama aldatıcı parıltılara kanma' diye fısıldar.";
+                }
+                nextSceneTransitionFunc = () => {
+                     document.getElementById('scene5-intro').innerText = choice === '4A' ?
+                        "Deniz Yılanı mağrur bir edayla başını eğer. 'Doğru bildin, fani. Liyakatini kanıtladın.' Mağaraya adımını atıyorsun. İçerisi labirent gibi. Ancak yerdeki parlayan yosun izini fark ediyorsun." :
+                        "Deniz Yılanı bilmecenin ardından sana bir de ipucu verdi. 'Işığı takip et, ama aldatıcı parıltılara kanma.' Bu sözlerle mağaraya giriyorsun. İçerisi labirent gibi. Yerdeki parlayan yosun izini fark ediyorsun.";
+                    showScene('scene5');
+                };
+                showResult(currentSceneId, resultMessage, nextSceneTransitionFunc);
+            }
+            else if (currentSceneId === 'scene5') {
+                if (choice === '5A') {
+                    resultMessage = "Yosunların oluşturduğu parlayan izi takip ediyorsun. Bu gizemli yol seni doğrudan Güneş Çiçeği'ne götürüyor.";
+                } else {
+                    resultMessage = "Mağarada bilge, ışıldayan pulları olan bir deniz kaplumbağasıyla karşılaşıyorsun. Ona Güneş Çiçeği'ni soruyorsun. Kaplumbağa, kadim bir sesle yolu tarif ediyor ve ekliyor: 'O çiçek hem Dünya'ya hem Delmaris'e aittir. Seçimini bilgece yap, genç ruh.'";
+                }
+                nextSceneTransitionFunc = () => {
+                    document.getElementById('scene6-intro').innerText = choice === '5A' ?
+                        "Sezgilerine güvenerek yosun izini takip ettin ve Güneş Çiçeği'ni buldun! Göz kamaştırıcı bir ışıkla parlıyor. Tam çiçeğe uzanacakken, çiçeğin dibindeki kadim taş tablette parlayan yazılar beliriyor..." :
+                        "Bilge kaplumbağanın yardımı ve uyarısıyla Güneş Çiçeği'ni buldun! Göz kamaştırıcı bir ışıkla parlıyor. Tam çiçeğe uzanacakken, çiçeğin dibindeki kadim taş tablette parlayan yazılar beliriyor...";
+                    showScene('scene6');
+                };
+                showResult(currentSceneId, resultMessage, nextSceneTransitionFunc);
+            }
+            else if (currentSceneId === 'scene6') {
+                let scene7TextContent = "";
+                if (choice === '6A') {
+                    resultMessage = "Dünya'nın acil kurtuluşunu düşünerek Güneş Çiçeği'ni nazikçe yerinden alıyorsun. Elinde muazzam bir güç hissediyorsun.";
+                    scene7TextContent = "<p>Hızla Delmaris'ten ayrılıp Dünya'ya döndün. Şehre vardığında, Güneş Çiçeği'ni gökyüzüne doğru tuttun. Çiçekten yayılan göz kamaştırıcı bir ışık hüzmesi göğe yükseldi, karanlık büyüyü anında parçaladı ve hapsedilmiş güneş tüm görkemiyle özgürlüğüne kavuştu. Dünya anında aydınlanırken, insanlar ve tüm canlılar büyük bir sevinç çığlığı attı. Ancak Delmaris'teki o kutsal mağara, şimdi eski ışıltısını kaybetmiş, sıradan bir su altı kovuğu haline gelmişti. Bir fedakarlık yapılmıştı.</p><button class='choice-button' onclick='clearTimeout(sceneTransitionTimeout); document.getElementById(\"scene7-text\").classList.add(\"hidden\"); populateScene8Choices(\"" + choice + "\"); showScene(\"scene8\");'>Kaderinle Yüzleş</button>";
+                } else {
+                    resultMessage = "Hem Dünya'yı hem de sana kucak açan Delmaris'i düşünerek taş tabletteki ritüel adımlarını izlemeye karar veriyorsun. Güneş Çiçeği'ne dokunarak, kadim sözleri fısıldıyorsun. Çiçekten yayılan enerji nazikçe yükseliyor.";
+                    scene7TextContent = "<p>Bu süreç daha yavaştı, ama umut doluydu. Sonunda, Dünya'ya döndüğünde, güneşin yavaş yavaş geri geldiğini gördün. İlk başta soluk bir ışık vardı, ama zamanla güçlendi. Birkaç gün içinde güneş eski parlaklığına kavuştu. Delmaris'teki Güneş Çiçeği ise yerinde duruyor, mağarayı ve çevresini aydınlatmaya, Delmaris canlılarına umut ve enerji vermeye devam ediyordu. Bir denge kurulmuştu.</p><button class='choice-button' onclick='clearTimeout(sceneTransitionTimeout); document.getElementById(\"scene7-text\").classList.add(\"hidden\"); populateScene8Choices(\"" + choice + "\"); showScene(\"scene8\");'>Kaderinle Yüzleş</button>";
+                }
+
+                // Sahne 6'nın sonucu için:
+                const scene6ResultDiv = document.getElementById('result-scene6');
+                scene6ResultDiv.innerHTML = resultMessage; // Sadece mesaj
+                const continueButton6 = document.createElement('button');
+                continueButton6.innerText = 'Devam Et';
+                continueButton6.className = 'small-continue-button';
+                continueButton6.onclick = () => {
+                    clearTimeout(sceneTransitionTimeout);
+                    document.getElementById('scene7-title').innerText = "Kararın Yankıları";
+                    const scene7TextDiv = document.getElementById('scene7-text');
+                    scene7TextDiv.innerHTML = scene7TextContent;
+                    scene7TextDiv.classList.remove('hidden');
+                    showScene('scene7');
+                    scene6ResultDiv.classList.add('hidden');
+                };
+                scene6ResultDiv.appendChild(document.createElement('br'));
+                scene6ResultDiv.appendChild(continueButton6);
+                scene6ResultDiv.classList.remove('hidden');
+
+                sceneTransitionTimeout = setTimeout(() => {
+                    document.getElementById('scene7-title').innerText = "Kararın Yankıları";
+                    const scene7TextDiv = document.getElementById('scene7-text');
+                    scene7TextDiv.innerHTML = scene7TextContent;
+                    scene7TextDiv.classList.remove('hidden');
+                    showScene('scene7');
+                    scene6ResultDiv.classList.add('hidden');
+                }, 8000);
+            }
+            else if (currentSceneId === 'scene8') {
+                let endingTitle = "";
+                let endingText = "";
+                if (choice === '8A.1') {
+                    endingTitle = "SON 1: Gizemli Kurtarıcı ve Solan Bir Hatıra";
+                    endingText = "Elarien, Dünya'yı kurtaran kahraman olarak anılır, ama Delmaris'in ve Güneş Çiçeği'nin (ve mağaranın solmasının) sırrını sonsuza dek kalbinde taşır. Dünya mutludur, ancak Delmaris'in fedakarlığı bilinmez. Elarien, zaman zaman denize bakar ve su altı dünyasının solan hatırasıyla, bir kahramanın sessiz yüküyle yaşar.";
+                } else if (choice === '8A.2') {
+                    endingTitle = "SON 2: Paylaşılan Sorumluluk ve Gelecek İçin Bir Ders";
+                    endingText = "Elarien, Dünya'yı kurtarmıştır. Yaşadığı her şeyi ve Delmaris'in mağarasının Güneş Çiçeği'nin yok olmasıyla solduğunu Yaşlı Teyze'ye anlatır. Yaşlı Teyze, Elarien'in fedakarlığını ve Delmaris'in kaybını anlar. Birlikte, bu olayın gelecekte doğal dengelere saygı duyulması ve sihrin bedellerinin anlaşılması için bir ders olmasına karar verirler. Dünya mutludur, ama Elarien ve Yaşlı Teyze, büyük güçlerin büyük sorumluluklar getirdiğini ve bazen zor seçimler yapılması gerektiğini, bilgelikle hatırlar.";
+                } else {
+                    endingTitle = "SON 3: İki Dünyanın Koruyucusu ve Yeşeren Umut";
+                    endingText = "Elarien, Dünya'yı kurtarmıştır ve Delmaris'in Güneş Çiçeği hala yerindedir. Bu bilgiyi Yaşlı Teyze ve diğer bilge kişilerle paylaşır. Dünya'da, Delmaris'e karşı büyük bir saygı ve merak uyanır. Belki de gelecekte iki dünya arasında dikkatli ve saygılı bir iletişim kurulabilir. Elarien, sadece Dünya'nın değil, aynı zamanda Delmaris'in de bir dostu ve koruyucusu olarak görülür. İki dünya arasında bir denge ve karşılıklı anlayış umudu yeşerir.";
+                }
+                resultMessage = `Seçimin fısıltısı yankılanıyor... Kaderin yazıldı.`;
+                nextSceneTransitionFunc = () => {
+                    document.getElementById('ending-title').innerText = endingTitle;
+                    document.getElementById('ending-text').innerText = endingText;
+                    showScene('ending');
+                };
+                showResult(currentSceneId, resultMessage, nextSceneTransitionFunc);
+            }
+        }
+
+        function populateScene2Choices(scene1Choice) {
+            const choicesDiv = document.getElementById('choices-scene2');
+            choicesDiv.innerHTML = '';
+            if (scene1Choice === '1A') {
+                choicesDiv.innerHTML += `<button class="choice-button" onclick="makeChoice('scene2', '2A.1')">Kitaptaki Geçit ve Işık Bilgisine Odaklanmak</button>`;
+                choicesDiv.innerHTML += `<button class="choice-button" onclick="makeChoice('scene2', '2A.2')">Kitabı Detaylıca İnceleyip Sihirbazın Zayıflığını Araştırmak</button>`;
+            } else {
+                choicesDiv.innerHTML += `<button class="choice-button" onclick="makeChoice('scene2', '2B.1')">Duyduğun Efsanelerle Kitaptaki Bilgileri Karşılaştırmak</button>`;
+                choicesDiv.innerHTML += `<button class="choice-button" onclick="makeChoice('scene2', '2B.2')">Kitaptaki En Güvenilir Görünen Yolu Seçmek</button>`;
+            }
+        }
+
+        function populateScene8Choices(scene6ChoiceValue) { // Parametre adı düzeltildi
+            const choicesDiv = document.getElementById('choices-scene8');
+            choicesDiv.innerHTML = '';
+            if (scene6ChoiceValue === '6A') { // Değişken adı düzeltildi
+                document.getElementById('scene8-intro').innerText = "Dünya kurtuldu ama Delmaris'teki mağara soldu. Bu ağır sırrı ne yapacaksın?";
+                choicesDiv.innerHTML += `<button class="choice-button" onclick="makeChoice('scene8', '8A.1')">Delmaris'in ve Yaşadığı Maceranın Sırrını Tamamen Saklamak</button>`;
+                choicesDiv.innerHTML += `<button class="choice-button" onclick="makeChoice('scene8', '8A.2')">Delmaris Hakkındaki Bilgiyi Sadece Yaşlı Teyze ile Paylaşmak (Mağaranın solduğunu da anlatarak)</button>`;
+            } else { // 6B - Çiçek bırakıldı
+                document.getElementById('scene8-intro').innerText = "Dünya yavaşça aydınlandı ve Delmaris'teki Güneş Çiçeği korundu. Bu umut dolu bilgiyi ne yapacaksın?";
+                choicesDiv.innerHTML += `<button class="choice-button" onclick="makeChoice('scene8', '8B.1')">Delmaris'in Korunduğunu ve İki Dünya Arasında Bir Bağ Olabileceğini Anlatmak</button>`;
+            }
+        }
+
+        function restartGame() {
+            playerChoices = {};
+            const results = document.querySelectorAll('.result');
+            results.forEach(r => {
+                r.innerHTML = '';
+                r.classList.add('hidden');
+            });
+            clearTimeout(sceneTransitionTimeout);
+            showScene('scene1');
+        }
+    </script>
+</body>
+</html>
